@@ -310,7 +310,7 @@ void *_zapps_main(void **stack)
 __asm__ (
     ".globl _zapps_start\n"
     ".section .text.zapps,\"ax\",@progbits\n"
-    ".type _zapps_syscall, @function\n"
+    ".type _zapps_start, @function\n"
     "_zapps_start:\n"
     "    mov %rsp, %rdi\n"
     "    call _zapps_main\n"
