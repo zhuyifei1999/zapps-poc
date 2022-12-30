@@ -162,7 +162,7 @@ void _zapps_die(const char *message)
     _zapps_sys_write(STDERR_FILENO, message, _zapps_strlen(message));
 #else
     char *shortmsg = "Zapps: Failed\n";
-    _zapps_sys_write(STDERR_FILENO, shortmsg, sizeof(shortmsg) - 1);
+    _zapps_sys_write(STDERR_FILENO, shortmsg, _zapps_strlen(shortmsg));
 #endif
 
     _zapps_sys_exit(1);
