@@ -17,21 +17,21 @@ relative:
 	mkdir -p relative
 
 absolute/lib.so: lib.c | absolute
-	$(CC) -shared $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< -fPIC -shared $(CFLAGS)
 absolute/exe: exe.c absolute/lib.so | absolute
-	$(CC) -L absolute -l:lib.so -Wl,-rpath=absolute $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< -L absolute -l:lib.so -Wl,-rpath=absolute $(CFLAGS)
 
 relative/ld-linux-x86-64.so.2 relative/libc.so.6: | relative
 	cp $$($(CC) --print-file-name=$(notdir $@)) $@
 
 tmp/zapps-crt0.o: zapps-crt0.c | tmp
-	$(CC) -fPIC -ffreestanding -c $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< -fPIC -ffreestanding -c $(CFLAGS)
 tmp/strip_interp: strip_interp.c | tmp
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< $(CFLAGS)
 
 relative/lib.so: lib.c | relative
-	$(CC) -shared $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< -fPIC -shared $(CFLAGS)
 relative/exe: exe.c tmp/strip_interp tmp/zapps-crt0.o relative/lib.so relative/ld-linux-x86-64.so.2 relative/libc.so.6 | relative
-	$(CC) -L relative -l:lib.so -Wl,-rpath=XORIGIN -Wl,-e_zapps_start -Wl,--unique=.text.zapps tmp/zapps-crt0.o $(CFLAGS) -o $@ $<
+	$(CC) -o $@ $< -L relative -l:lib.so -Wl,-rpath=XORIGIN -Wl,-e_zapps_start -Wl,--unique=.text.zapps tmp/zapps-crt0.o $(CFLAGS)
 	sed -i '0,/XORIGIN/{s/XORIGIN/$$ORIGIN/}' $@
 	tmp/strip_interp $@
