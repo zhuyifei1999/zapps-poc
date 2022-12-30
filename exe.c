@@ -29,6 +29,6 @@ int main(int argc, char **argv)
         int len = read(fd, buf, sizeof(buf));
         if (len <= 0)
             break;
-        write(STDOUT_FILENO, buf, len);
+        (void)!write(STDOUT_FILENO, buf, len);
     }
 }

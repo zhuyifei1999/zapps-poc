@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define PT_ZAPPS_INTERP 0xa26d1ecc
+
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -27,7 +29,7 @@ int main(int argc, char **argv)
         if (phdr.p_type != PT_INTERP)
             continue;
 
-        phdr.p_type = PT_NULL;
+        phdr.p_type = PT_ZAPPS_INTERP;
         if (pwrite(fd, &phdr, sizeof(phdr), ehdr.e_phoff + i * sizeof(phdr)) != sizeof(phdr))
             error(1, errno, "write phdr");
     }
