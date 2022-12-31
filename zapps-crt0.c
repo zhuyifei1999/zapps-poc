@@ -16,7 +16,9 @@
 #define noreturn __attribute__((noreturn))
 #define __section_zapps __attribute__((section(".text.zapps")))
 
+#ifndef PAGE_SIZE
 #define PAGE_SIZE 4096
+#endif
 #define PAGE_OFF(x) ((x)&(PAGE_SIZE-1))
 #define PAGE_DOWN(x) ((x)&-PAGE_SIZE)
 #define PAGE_UP(x) PAGE_DOWN((x) + PAGE_SIZE - 1)
@@ -181,7 +183,7 @@ unsigned long *_zapps_getauxval_ptr(Elf64_auxv_t *auxv, unsigned long type)
 __section_zapps
 void *_zapps_main(void **stack)
 {
-    char ld_rel[] = "/ld-linux-x86-64.so.2";
+    char ld_rel[] = "/libc.so";
     uintptr_t page_filesz, page_memsz;
     Elf64_Phdr *self_phdr, *self_phdr_end;
     Elf64_Word p_type_interp = PT_INTERP;

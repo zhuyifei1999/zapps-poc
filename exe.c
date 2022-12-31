@@ -1,7 +1,7 @@
 #include <errno.h>
-#include <error.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 extern void foo(void);
@@ -20,8 +20,10 @@ int main(int argc, char **argv)
     foo();
 
     int fd = open("/proc/self/maps", O_RDONLY | O_CLOEXEC);
-    if (fd < 0)
-        error(1, errno, "/proc/self/maps");
+    if (fd < 0) {
+        perror("/proc/self/maps");
+        exit(1);
+    }
 
     printf("contents of /proc/self/maps:\n");
     for (;;) {

@@ -1,11 +1,35 @@
+#define _GNU_SOURCE
+
 #include <elf.h>
 #include <errno.h>
-#include <error.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define PT_ZAPPS_INTERP 0xa26d1ecc
+
+#ifndef error
+__attribute__((weak))
+void error(int status, int errnum, const char *format, ...)
+{
+    va_list ap;
+
+    fprintf(stderr, "%s: ", program_invocation_name);
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+    if (errnum) {
+        errno = errnum;
+        fprintf(stderr, ": %m");
+    }
+    fprintf(stderr, "\n");
+
+    if (status)
+        exit(status);
+}
+#endif
 
 int main(int argc, char **argv)
 {
