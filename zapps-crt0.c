@@ -161,8 +161,8 @@ void _zapps_die(const char *message)
 #if ZAPPS_DEBUG
     _zapps_sys_write(STDERR_FILENO, message, _zapps_strlen(message));
 #else
-    char *shortmsg = "Zapps: Failed\n";
-    _zapps_sys_write(STDERR_FILENO, shortmsg, _zapps_strlen(shortmsg));
+    char shortmsg[] = "Zapps: Failed\n";
+    _zapps_sys_write(STDERR_FILENO, shortmsg, sizeof(shortmsg) - 1);
 #endif
 
     _zapps_sys_exit(1);
@@ -181,7 +181,7 @@ unsigned long *_zapps_getauxval_ptr(Elf64_auxv_t *auxv, unsigned long type)
 __section_zapps
 void *_zapps_main(void **stack)
 {
-    char *ld_rel = "/ld-linux-x86-64.so.2";
+    char ld_rel[] = "/ld-linux-x86-64.so.2";
     uintptr_t page_filesz, page_memsz;
     Elf64_Phdr *self_phdr, *self_phdr_end;
     Elf64_Word p_type_interp = PT_INTERP;
@@ -208,7 +208,7 @@ void *_zapps_main(void **stack)
 
     auxv = (void *)stack;
 
-    if (_zapps_sys_readlink("/proc/self/exe", ld, sizeof(ld)) < 0)
+    if (_zapps_sys_readlink((char []){"/proc/self/exe"}, ld, sizeof(ld)) < 0)
         _zapps_die("Zapps: Fatal: failed to readlink /proc/self/exe\n");
 
     *_zapps_strrchr(ld, '/') = '\0';
@@ -291,7 +291,7 @@ void *_zapps_main(void **stack)
     self_phdr = (void *)*_zapps_getauxval_ptr(auxv, AT_PHDR);
     self_phdr_end = self_phdr + *_zapps_getauxval_ptr(auxv, AT_PHNUM);
 
-    mem_fd = _zapps_sys_open("/proc/self/mem", O_RDWR | O_CLOEXEC);
+    mem_fd = _zapps_sys_open((char []){"/proc/self/mem"}, O_RDWR | O_CLOEXEC);
     if (mem_fd < 0)
         _zapps_die("Zapps: Fatal: failed to open /proc/self/mem\n");
 
