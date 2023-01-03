@@ -182,9 +182,9 @@ __section_zapps
 void *_zapps_main(void **stack)
 {
     char ld_rel[] = "/ld-linux-x86-64.so.2";
-    uintptr_t page_filesz, page_memsz;
     Elf64_Phdr *self_phdr, *self_phdr_end;
     Elf64_Word p_type_interp = PT_INTERP;
+    uintptr_t page_filesz, page_memsz;
     size_t max_map = 0;
     void *ld_base_addr;
     unsigned long argc;
@@ -265,7 +265,7 @@ void *_zapps_main(void **stack)
 
         /* BSS stage 1: clear memory after filesz */
         ptr = ld_base_addr + ld_phdr.p_vaddr + ld_phdr.p_filesz;
-        _zapps_memset(ptr, 0, PAGE_SIZE - PAGE_OFF((uintptr_t)ptr));
+        _zapps_memset(ptr, 0, PAGE_UP((uintptr_t)ptr) - (uintptr_t)ptr);
 
         page_filesz = PAGE_UP((uintptr_t)ptr);
         page_memsz = PAGE_UP((uintptr_t)ld_base_addr + ld_phdr.p_vaddr +
