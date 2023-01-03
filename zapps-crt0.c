@@ -260,23 +260,25 @@ void *_zapps_main(void **stack)
         ))
             _zapps_die("Zapps: Fatal: failed to map ld.so\n");
 
-        if (ld_phdr.p_filesz < ld_phdr.p_memsz) {
-            /* BSS stage 1: clear memory after filesz */
-            ptr = ld_base_addr + ld_phdr.p_vaddr + ld_phdr.p_filesz;
-            _zapps_memset(ptr, 0, PAGE_SIZE - PAGE_OFF((uintptr_t)ptr));
+        if (ld_phdr.p_filesz >= ld_phdr.p_memsz)
+            continue;
 
-            page_filesz = PAGE_UP((uintptr_t)ptr);
-            page_memsz = PAGE_UP((uintptr_t)ld_base_addr + ld_phdr.p_vaddr +
-                                 ld_phdr.p_memsz);
-            if (page_filesz < page_memsz) {
-                /* BSS stage 2: map anon pages after last filesz page */
-                if (IS_ERR(_zapps_sys_mmap(
-                    (void *)page_filesz, page_memsz - page_filesz,
-                    prot, MAP_PRIVATE | MAP_FIXED | MAP_ANONYMOUS, -1, 0)
-                ))
-                    _zapps_die("Zapps: Fatal: failed to map BSS in ld.so\n");
-            }
-        }
+        /* BSS stage 1: clear memory after filesz */
+        ptr = ld_base_addr + ld_phdr.p_vaddr + ld_phdr.p_filesz;
+        _zapps_memset(ptr, 0, PAGE_SIZE - PAGE_OFF((uintptr_t)ptr));
+
+        page_filesz = PAGE_UP((uintptr_t)ptr);
+        page_memsz = PAGE_UP((uintptr_t)ld_base_addr + ld_phdr.p_vaddr +
+                             ld_phdr.p_memsz);
+        if (page_filesz >= page_memsz)
+            continue;
+
+        /* BSS stage 2: map anon pages after last filesz page */
+        if (IS_ERR(_zapps_sys_mmap(
+            (void *)page_filesz, page_memsz - page_filesz,
+            prot, MAP_PRIVATE | MAP_FIXED | MAP_ANONYMOUS, -1, 0)
+        ))
+            _zapps_die("Zapps: Fatal: failed to map BSS in ld.so\n");
     }
 
     _zapps_sys_close(ld_fd);
