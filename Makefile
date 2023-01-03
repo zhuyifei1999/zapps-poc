@@ -25,7 +25,7 @@ relative/ld-linux-x86-64.so.2 relative/libc.so.6: | relative
 	cp $$($(CC) --print-file-name=$(notdir $@)) $@
 
 tmp/zapps-crt0.o: zapps-crt0.c | tmp
-	$(CC) -o $@ $< -fPIC -ffreestanding -c $(CFLAGS)
+	$(CC) -o $@ $< -fPIC -ffreestanding -fno-merge-constants -c $(CFLAGS)
 tmp/strip_interp: strip_interp.c | tmp
 	$(CC) -o $@ $< $(CFLAGS)
 
