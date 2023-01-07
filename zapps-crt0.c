@@ -185,6 +185,8 @@ void *_zapps_main(void **stack)
     Elf64_Phdr *self_phdr, *self_phdr_end;
     Elf64_Word p_type_interp = PT_INTERP;
     uintptr_t page_filesz, page_memsz;
+    ssize_t exe_path_len;
+    char ld[PATH_MAX+1];
     size_t max_map = 0;
     void *ld_base_addr;
     unsigned long argc;
@@ -192,7 +194,6 @@ void *_zapps_main(void **stack)
     Elf64_Ehdr ld_ehdr;
     Elf64_Phdr ld_phdr;
     int ld_fd, mem_fd;
-    char ld[PATH_MAX];
     unsigned int i;
     void *ptr;
     int prot;
@@ -208,9 +209,11 @@ void *_zapps_main(void **stack)
 
     auxv = (void *)stack;
 
-    if (_zapps_sys_readlink((char []){"/proc/self/exe"}, ld, sizeof(ld)) < 0)
+    exe_path_len = _zapps_sys_readlink((char []){"/proc/self/exe"}, ld, PATH_MAX);
+    if (exe_path_len < 0 || exe_path_len >= PATH_MAX)
         _zapps_die("Zapps: Fatal: failed to readlink /proc/self/exe\n");
 
+    ld[exe_path_len] = '\0';
     *_zapps_strrchr(ld, '/') = '\0';
     _zapps_strncat(ld, ld_rel, sizeof(ld) - 1);
 
